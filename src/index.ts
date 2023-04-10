@@ -1,0 +1,23 @@
+import "reflect-metadata";
+import * as dotenv from 'dotenv';
+dotenv.config();
+import { container } from "tsyringe";
+import { Main } from "./Main.js";
+import { IQueueService } from "./services/queue/IQueueService.js";
+import { RSMQueueService } from "./services/queue/RSMQueueService.js";
+import { IConnection } from "./db/connections/IConnection.js";
+import { MongoConnection } from "./db/connections/MongoConnection.js";
+import { CheerioScrapeTaskService } from "./services/task/service/CheerioScrapeTaskService.js";
+import { IScrapeTaskService } from "./services/task/service/IScrapeTaskService.js";
+import { IScrapeTaskFactory } from "./services/task/IScrapeTaskFactory.js";
+import { ScrapeTaskFactory } from "./services/task/ScrapeTaskFactory.js";
+
+container.register<IQueueService>('IQueueService', RSMQueueService);
+container.register<IConnection>('IConnection', MongoConnection);
+container.register<IScrapeTaskService>('IScrapeTaskService', CheerioScrapeTaskService);
+container.register<IScrapeTaskFactory>('IScrapeTaskFactory', ScrapeTaskFactory);
+container.register("QUEUE_NAME", {useValue: process.env.SCRAPE_ID || ''});
+container.register("REDIS_HOST", {useValue: process.env.REDIS_HOST || ''});
+container.register("REDIS_PORT", {useValue: process.env.REDIS_PORT || 6379});
+const main = container.resolve(Main);
+main.main();
